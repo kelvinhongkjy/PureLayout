@@ -277,14 +277,15 @@
  @param spacing The fixed amount of spacing between each view.
  @param shouldSpaceInsets Whether the first and last views should be equally inset from their superview.
  @param shouldMatchSizes Whether all views will be constrained to be the same size in the dimension along the axis.
-                         NOTE: All views must specify an intrinsic content size if passing NO, otherwise the layout will be ambiguous!
+ NOTE: All views must specify an intrinsic content size if passing NO, otherwise the layout will be ambiguous!
  @return An array of constraints added.
  */
 - (PL__NSArray_of(NSLayoutConstraint *) *)autoDistributeViewsAlongAxis:(ALAxis)axis
-                                                           alignedTo:(ALAttribute)alignment
-                                                    withFixedSpacing:(CGFloat)spacing
-                                                        insetSpacing:(BOOL)shouldSpaceInsets
-                                                        matchedSizes:(BOOL)shouldMatchSizes
+                                                             alignedTo:(ALAttribute)alignment
+                                                      withFixedSpacing:(CGFloat)spacing
+                                                        leadingSpacing:(CGFloat)leadingSpacing
+                                                       trailingSpacing:(CGFloat)trailingSpacing
+                                                          matchedSizes:(BOOL)shouldMatchSizes
 {
     NSAssert([self al_containsMinimumNumberOfViews:1], @"This array must contain at least 1 view to distribute.");
     ALDimension matchedDimension;
@@ -308,8 +309,6 @@
             NSAssert(nil, @"Not a valid ALAxis.");
             return nil;
     }
-    CGFloat leadingSpacing = shouldSpaceInsets ? spacing : 0.0;
-    CGFloat trailingSpacing = shouldSpaceInsets ? spacing : 0.0;
     
     PL__NSMutableArray_of(NSLayoutConstraint *) *constraints = [NSMutableArray new];
     ALView *previousView = nil;
@@ -337,6 +336,35 @@
         [constraints addObject:[previousView autoPinEdgeToSuperviewEdge:lastEdge withInset:trailingSpacing]];
     }
     return constraints;
+}
+
+/**
+ Distributes the views in this array equally along the selected axis in their superview.
+ Views will have fixed spacing between them, and can optionally be constrained to the same size in the dimension along the axis.
+ The first and last views can optionally be inset from their superview by the same amount of spacing as between views.
+ 
+ @param axis The axis along which to distribute the views.
+ @param alignment The attribute to use to align all the views to one another.
+ @param spacing The fixed amount of spacing between each view.
+ @param shouldSpaceInsets Whether the first and last views should be equally inset from their superview.
+ @param shouldMatchSizes Whether all views will be constrained to be the same size in the dimension along the axis.
+                         NOTE: All views must specify an intrinsic content size if passing NO, otherwise the layout will be ambiguous!
+ @return An array of constraints added.
+ */
+- (PL__NSArray_of(NSLayoutConstraint *) *)autoDistributeViewsAlongAxis:(ALAxis)axis
+                                                           alignedTo:(ALAttribute)alignment
+                                                    withFixedSpacing:(CGFloat)spacing
+                                                        insetSpacing:(BOOL)shouldSpaceInsets
+                                                        matchedSizes:(BOOL)shouldMatchSizes
+{
+    CGFloat leadingSpacing = shouldSpaceInsets ? spacing : 0.0;
+    CGFloat trailingSpacing = shouldSpaceInsets ? spacing : 0.0;
+    return [self autoDistributeViewsAlongAxis:axis
+                                    alignedTo:alignment
+                             withFixedSpacing:spacing
+                               leadingSpacing:leadingSpacing
+                              trailingSpacing:trailingSpacing
+                                 matchedSizes:shouldMatchSizes];
 }
 
 /**
